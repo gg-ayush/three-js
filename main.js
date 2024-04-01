@@ -43,7 +43,7 @@ function init() {
 
     const loader = new GLTFLoader();
     loader.load(
-        'models/model.glb',
+        './models/model.glb',
         function ( gltf ) {
             const model = gltf.scene;
             scene.add( model );
@@ -55,27 +55,17 @@ function init() {
     );
 
     //
-
     const onSelect = function () {
-
-        if ( reticle.visible ) {
-            const onSelect = function () {
-                if (reticle.visible) {
-                    // Instantiate a new instance of the loaded model
-                    const clonedModel = model.clone();
-                    // Set the position of the cloned model to the position of the reticle
-                    reticle.getWorldPosition(clonedModel.position);
-                    // Set the scale of the cloned model to make it smaller
-                    const scaleFactor = 0.5; // Adjust this value as needed
-                    clonedModel.scale.set(scaleFactor, scaleFactor, scaleFactor);
-                    // Add the cloned model to the scene
-                    scene.add(clonedModel);
-                }
-            };            
+        if (reticle.visible) {
+        // Instantiate a new instance of the loaded model
+            const clonedModel = model.clone();
+            // Set the position of the cloned model to the position of the reticle
+            reticle.getWorldPosition(clonedModel.position);
+            // Add the cloned model to the scene
+            scene.add(clonedModel);
         }
-
     };
-
+    
     controller = renderer.xr.getController( 0 );
     controller.addEventListener( 'select', onSelect );
     scene.add( controller );
