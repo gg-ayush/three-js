@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { ARButton } from 'three/examples/jsm/webxr/ARButton.js';
 
@@ -42,6 +43,9 @@ function init() {
     //
 
     const loader = new GLTFLoader();
+    const dracoLoader = new DRACOLoader();
+    dracoLoader.setDecoderPath( '/examples/jsm/libs/draco/' );
+    loader.setDRACOLoader( dracoLoader );
     //
     const onSelect = function () {
         if (reticle.visible) {
@@ -59,7 +63,7 @@ function init() {
         );
         const mesh = new THREE.Mesh( model, material );
         reticle.matrix.decompose( mesh.position, mesh.quaternion, mesh.scale );
-        mesh.scale.y = Math.random() * 2 + 1;
+        mesh.scale.set(1,1,1);
         scene.add( mesh );
         }
     };
