@@ -42,27 +42,25 @@ function init() {
     //
 
     const loader = new GLTFLoader();
-    loader.load(
-        'models/model.glb',
-        function ( gltf ) {
-            const model = gltf.scene;
-            scene.add( model );
-        },
-        undefined,
-        function ( error ) {
-            console.error( 'Error loading model:', error );
-        }
-    );
-
     //
     const onSelect = function () {
         if (reticle.visible) {
         // Instantiate a new instance of the loaded model
-            const clonedModel = model.clone();
-            // Set the position of the cloned model to the position of the reticle
-            reticle.getWorldPosition(clonedModel.position);
-            // Add the cloned model to the scene
-            scene.add(clonedModel);
+        loader.load(
+            'https://models.readyplayer.me/658be9e8fc8bec93d06806f3.glb?quality=high',
+            function ( gltf ) {
+                const model = gltf.scene;
+                scene.add( model );
+            },
+            undefined,
+            function ( error ) {
+                console.error( 'Error loading model:', error );
+            }
+        );
+        const mesh = new THREE.Mesh( model, material );
+        reticle.matrix.decompose( mesh.position, mesh.quaternion, mesh.scale );
+        mesh.scale.y = Math.random() * 2 + 1;
+        scene.add( mesh );
         }
     };
 
