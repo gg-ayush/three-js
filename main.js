@@ -43,7 +43,7 @@ function init() {
 
     const loader = new GLTFLoader();
     loader.load(
-        './models/model.glb',
+        'models/model.glb',
         function ( gltf ) {
             const model = gltf.scene;
             scene.add( model );
@@ -65,7 +65,7 @@ function init() {
             scene.add(clonedModel);
         }
     };
-    
+
     controller = renderer.xr.getController( 0 );
     controller.addEventListener( 'select', onSelect );
     scene.add( controller );
