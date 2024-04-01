@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { ARButton } from 'three/addons/webxr/ARButton.js';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 
 let container;
 let camera, scene, renderer;
@@ -40,7 +41,20 @@ function init() {
 
 	//
 
-	const geometry = new THREE.CylinderGeometry( 0.1, 0.1, 0.2, 32 ).translate( 0, 0.1, 0 );
+	const geometry = new GLTFLoader();
+    geometry.load(
+        'models/658be9e8fc8bec93d06806f3.glb',
+        (gltf) => {
+            const model = gltf.scene;
+            model.position.set(0, 0, 0);
+            model.rotation.set(0, Math.PI/18, 0);
+            scene.add(model);
+        },
+        undefined,
+        (error) => {
+            console.error('Error loading model:', error);
+        }
+    );
 
 	function onSelect() {
 
