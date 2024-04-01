@@ -1,6 +1,6 @@
 import * as THREE from 'three';
-import { ARButton } from 'three/addons/webxr/ARButton.js';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { ARButton } from 'three/examples/jsm/webxr/ARButton.js';
 
 let container;
 let camera, scene, renderer;
@@ -16,84 +16,90 @@ animate();
 
 function init() {
 
-	container = document.createElement( 'div' );
-	document.body.appendChild( container );
+    container = document.createElement( 'div' );
+    document.body.appendChild( container );
 
-	scene = new THREE.Scene();
+    scene = new THREE.Scene();
 
-	camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.01, 20 );
+    camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.01, 20 );
 
-	const light = new THREE.HemisphereLight( 0xffffff, 0xbbbbff, 3 );
-	light.position.set( 0.5, 1, 0.25 );
-	scene.add( light );
+    const light = new THREE.HemisphereLight( 0xffffff, 0xbbbbff, 3 );
+    light.position.set( 0.5, 1, 0.25 );
+    scene.add( light );
 
-	//
+    //
 
-	renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
-	renderer.setPixelRatio( window.devicePixelRatio );
-	renderer.setSize( window.innerWidth, window.innerHeight );
-	renderer.xr.enabled = true;
-	container.appendChild( renderer.domElement );
+    renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
+    renderer.setPixelRatio( window.devicePixelRatio );
+    renderer.setSize( window.innerWidth, window.innerHeight );
+    renderer.xr.enabled = true;
+    container.appendChild( renderer.domElement );
 
-	//
+    //
 
-	document.body.appendChild( ARButton.createButton( renderer, { requiredFeatures: [ 'hit-test' ] } ) );
+    document.body.appendChild( ARButton.createButton( renderer, { requiredFeatures: [ 'hit-test' ] } ) );
 
-	//
+    //
 
-	const geometry = new GLTFLoader();
-    geometry.load(
-        'models/658be9e8fc8bec93d06806f3.glb',
-        (gltf) => {
+    const loader = new GLTFLoader();
+    loader.load(
+        'models/model.glb',
+        function ( gltf ) {
             const model = gltf.scene;
-            model.position.set(0, 0, 0);
-            model.rotation.set(0, Math.PI/18, 0);
-            scene.add(model);
+            scene.add( model );
         },
         undefined,
-        (error) => {
-            console.error('Error loading model:', error);
+        function ( error ) {
+            console.error( 'Error loading model:', error );
         }
     );
 
-	function onSelect() {
+    //
 
-		if ( reticle.visible ) {
+    const onSelect = function () {
 
-			const material = new THREE.MeshPhongMaterial( { color: 0xffffff * Math.random() } );
-			const mesh = new THREE.Mesh( geometry, material );
-			reticle.matrix.decompose( mesh.position, mesh.quaternion, mesh.scale );
-			mesh.scale.y = Math.random() * 2 + 1;
-			scene.add( mesh );
+        if ( reticle.visible ) {
+            const onSelect = function () {
+                if (reticle.visible) {
+                    // Instantiate a new instance of the loaded model
+                    const clonedModel = model.clone();
+                    // Set the position of the cloned model to the position of the reticle
+                    reticle.getWorldPosition(clonedModel.position);
+                    // Set the scale of the cloned model to make it smaller
+                    const scaleFactor = 0.5; // Adjust this value as needed
+                    clonedModel.scale.set(scaleFactor, scaleFactor, scaleFactor);
+                    // Add the cloned model to the scene
+                    scene.add(clonedModel);
+                }
+            };            
+        }
 
-		}
+    };
 
-	}
+    controller = renderer.xr.getController( 0 );
+    controller.addEventListener( 'select', onSelect );
+    scene.add( controller );
 
-	controller = renderer.xr.getController( 0 );
-	controller.addEventListener( 'select', onSelect );
-	scene.add( controller );
+    reticle = new THREE.Mesh(
+        new THREE.RingGeometry( 0.15, 0.2, 32 ).rotateX( - Math.PI / 2 ),
+        new THREE.MeshBasicMaterial()
+    );
+    reticle.matrixAutoUpdate = false;
+    reticle.visible = false;
+    scene.add( reticle );
 
-	reticle = new THREE.Mesh(
-		new THREE.RingGeometry( 0.15, 0.2, 32 ).rotateX( - Math.PI / 2 ),
-		new THREE.MeshBasicMaterial()
-	);
-	reticle.matrixAutoUpdate = false;
-	reticle.visible = false;
-	scene.add( reticle );
+    //
 
-	//
-
-	window.addEventListener( 'resize', onWindowResize );
+    window.addEventListener( 'resize', onWindowResize );
 
 }
 
 function onWindowResize() {
 
-	camera.aspect = window.innerWidth / window.innerHeight;
-	camera.updateProjectionMatrix();
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
 
-	renderer.setSize( window.innerWidth, window.innerHeight );
+    renderer.setSize( window.innerWidth, window.innerHeight );
 
 }
 
@@ -101,61 +107,61 @@ function onWindowResize() {
 
 function animate() {
 
-	renderer.setAnimationLoop( render );
+    renderer.setAnimationLoop( render );
 
 }
 
 function render( timestamp, frame ) {
 
-	if ( frame ) {
+    if ( frame ) {
 
-		const referenceSpace = renderer.xr.getReferenceSpace();
-		const session = renderer.xr.getSession();
+        const referenceSpace = renderer.xr.getReferenceSpace();
+        const session = renderer.xr.getSession();
 
-		if ( hitTestSourceRequested === false ) {
+        if ( hitTestSourceRequested === false ) {
 
-			session.requestReferenceSpace( 'viewer' ).then( function ( referenceSpace ) {
+            session.requestReferenceSpace( 'viewer' ).then( function ( referenceSpace ) {
 
-				session.requestHitTestSource( { space: referenceSpace } ).then( function ( source ) {
+                session.requestHitTestSource( { space: referenceSpace } ).then( function ( source ) {
 
-					hitTestSource = source;
+                    hitTestSource = source;
 
-				} );
+                } );
 
-			} );
+            } );
 
-			session.addEventListener( 'end', function () {
+            session.addEventListener( 'end', function () {
 
-				hitTestSourceRequested = false;
-				hitTestSource = null;
+                hitTestSourceRequested = false;
+                hitTestSource = null;
 
-			} );
+            } );
 
-			hitTestSourceRequested = true;
+            hitTestSourceRequested = true;
 
-		}
+        }
 
-		if ( hitTestSource ) {
+        if ( hitTestSource ) {
 
-			const hitTestResults = frame.getHitTestResults( hitTestSource );
+            const hitTestResults = frame.getHitTestResults( hitTestSource );
 
-			if ( hitTestResults.length ) {
+            if ( hitTestResults.length ) {
 
-				const hit = hitTestResults[ 0 ];
+                const hit = hitTestResults[ 0 ];
 
-				reticle.visible = true;
-				reticle.matrix.fromArray( hit.getPose( referenceSpace ).transform.matrix );
+                reticle.visible = true;
+                reticle.matrix.fromArray( hit.getPose( referenceSpace ).transform.matrix );
 
-			} else {
+            } else {
 
-				reticle.visible = false;
+                reticle.visible = false;
 
-			}
+            }
 
-		}
+        }
 
-	}
+    }
 
-	renderer.render( scene, camera );
+    renderer.render( scene, camera );
 
 }
