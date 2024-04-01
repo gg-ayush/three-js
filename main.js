@@ -47,7 +47,7 @@ function init() {
     dracoLoader.setDecoderPath( '/examples/jsm/libs/draco/' );
     loader.setDRACOLoader( dracoLoader );
     //
-    const onSelect = function () {
+    const onClick = function () {
         if (reticle.visible) {
         // Instantiate a new instance of the loaded model
         loader.load(
@@ -63,13 +63,13 @@ function init() {
         );
         const mesh = new THREE.Mesh( model, material );
         reticle.matrix.decompose( mesh.position, mesh.quaternion, mesh.scale );
-        mesh.scale.set(1,1,1);
+        mesh.scale.set(0.3,0.3,0.3);
         scene.add( mesh );
         }
     };
 
     controller = renderer.xr.getController( 0 );
-    controller.addEventListener( 'select', onSelect );
+    controller.addEventListener( 'select', onClick );
     scene.add( controller );
 
     reticle = new THREE.Mesh(
